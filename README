@@ -1,15 +1,10 @@
 NAME
     DBD::SQLeet - SQLite3 DBI driver with optional encryption
-    DBD::SQLeet is a combination of the
-    DBD::SQLite CPAN module <https://metacpan.org/pod/DBD::SQLite> and
-    sqleet - public domain encryption extension for SQLite3.
-    See <https://github.com/resilar/sqleet> for details.
 
-    DBD::SQLeet Perl code and test suite
-    are entirely based on the DBD::SQLite v.1.58 CPAN module.
-
-    The DBD::SQLeet API is a verbatim copy of the DBD::SQLite v.1.58 API.
-    See <https://metacpan.org/pod/DBD::SQLite> for reference.
+    DBD::SQLeet is a combination of the DBD::SQLite CPAN module:
+    <https://metacpan.org/pod/DBD::SQLite> and
+    sqleet - public domain encryption extension for SQLite3:
+    <https://github.com/resilar/sqleet>
 
 SYNOPSIS
       use DBI;
@@ -21,6 +16,9 @@ DESCRIPTION
 
     SQLite is a public domain file-based relational database engine that you
     can find at <http://www.sqlite.org/>.
+
+    DBD::SQLeet Perl code and test suite
+    are entirely based on the DBD::SQLite v.1.58 CPAN module.
 
     The DBD::SQLeet API is a verbatim copy of the DBD::SQLite v.1.58 API.
     See <https://metacpan.org/pod/DBD::SQLite> for reference.
