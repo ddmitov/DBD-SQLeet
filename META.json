@@ -58,6 +58,6 @@
          "url" : "https://github.com/ddmitov/DBD-SQLeet"
       }
    },
-   "version" : "1.58",
+   "version" : "0.24.3",
    "x_serialization_backend" : "JSON::PP version 2.94"
 }
