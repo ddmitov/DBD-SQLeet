@@ -1,5 +1,9 @@
 Changes for DBD::SQLeet CPAN module
 
+0.24.3 2018-31-08
+  - removal of obsolete test code
+  - documentation update
+
 0.24.2 2018-31-08
   - removal of inherited DBD::SQLite::VirtualTable code
   - documentation update

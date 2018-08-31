@@ -144,7 +144,7 @@ $sqleet_sqlite_call = sub {
 
 =head2 has_sqleet_sqlite
 
-  has_sqleet_sqlite('3.6.11');
+  has_sqleet_sqlite('3.24.0');
 
 returns true if DBD::SQLeet is built with a version of SQLite equal to or higher than the specified version.
 

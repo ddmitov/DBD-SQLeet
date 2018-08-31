@@ -7,7 +7,7 @@ use warnings;
 use DBI 1.57 ();
 use DynaLoader ();
 
-our $VERSION = '0.24.2';
+our $VERSION = '0.24.3';
 our @ISA = 'DynaLoader';
 
 # sqlite_version cache (set in the XS bootstrap)
@@ -93,12 +93,12 @@ sub connect {
   } );
 
   my $real = $dbname;
-  if ( $dbname =~ /=/ ) {
-    foreach my $attrib ( split(/;/, $dbname) ) {
+  if ($dbname =~ /=/) {
+    foreach my $attrib (split(/;/, $dbname)) {
       my ($key, $value) = split(/=/, $attrib, 2);
-      if ( $key =~ /^(?:db(?:name)?|database)$/ ) {
+      if ($key =~ /^(?:db(?:name)?|database)$/) {
         $real = $value;
-      } elsif ( $key eq 'uri' ) {
+      } elsif ($key eq 'uri') {
         $real = $value;
         $attr->{sqlite_open_flags} |= DBD::SQLeet::OPEN_URI();
       } else {
@@ -115,12 +115,12 @@ sub connect {
 
   # To avoid unicode and long file name problems on Windows,
   # convert to the shortname if the file (or parent directory) exists.
-  if ( $^O =~ /MSWin32/ and $real ne ':memory:' and $real ne '' and $real !~ /^file:/ and !-f $real ) {
+  if ($^O =~ /MSWin32/ and $real ne ':memory:' and $real ne '' and $real !~ /^file:/ and !-f $real) {
     require File::Basename;
     my ($file, $dir, $suffix) = File::Basename::fileparse($real);
     # We are creating a new file.
     # Does the directory it's in at least exist?
-    if ( -d $dir ) {
+    if (-d $dir) {
       require Win32;
       $real = join '', grep { defined } Win32::GetShortPathName($dir), $file, $suffix;
     } else {
@@ -134,14 +134,14 @@ sub connect {
 
   # Register the on-demand collation installer, REGEXP function and
   # perl tokenizer
-  if ( DBD::SQLeet::NEWAPI ) {
+  if (DBD::SQLeet::NEWAPI) {
     $dbh->sqlite_collation_needed( \&install_collation );
     $dbh->sqlite_create_function( "REGEXP", 2, \&regexp );
     $dbh->sqlite_register_fts3_perl_tokenizer();
   } else {
-    $dbh->func( \&install_collation, "collation_needed"  );
-    $dbh->func( "REGEXP", 2, \&regexp, "create_function" );
-    $dbh->func( "register_fts3_perl_tokenizer" );
+    $dbh->func(\&install_collation, "collation_needed");
+    $dbh->func("REGEXP", 2, \&regexp, "create_function");
+    $dbh->func("register_fts3_perl_tokenizer");
   }
 
   # HACK: Since PrintWarn = 0 doesn't seem to actually prevent warnings
@@ -173,10 +173,10 @@ sub install_collation {
     warn "Can't install unknown collation: $name" if $dbh->{PrintWarn};
     return;
   }
-  if ( DBD::SQLeet::NEWAPI ) {
+  if (DBD::SQLeet::NEWAPI) {
     $dbh->sqlite_create_collation( $name => $collation );
   } else {
-    $dbh->func( $name => $collation, "create_collation" );
+    $dbh->func($name => $collation, "create_collation");
   }
 }
 
@@ -211,7 +211,7 @@ sub do {
 
   # shortcut
   my $allow_multiple_statements = $dbh->FETCH('sqlite_allow_multiple_statements');
-  if  (defined $statement && !defined $attr && !@bind_values) {
+  if (defined $statement && !defined $attr && !@bind_values) {
     # _do() (i.e. sqlite3_exec()) runs semicolon-separate SQL
     # statements, which is handy but insecure sometimes.
     # Use this only when it's safe or explicitly allowed.
@@ -248,13 +248,13 @@ sub ping {
 }
 
 sub _get_version {
-  return ( DBD::SQLeet::db::FETCH($_[0], 'sqlite_version') );
+  return (DBD::SQLeet::db::FETCH($_[0], 'sqlite_version'));
 }
 
 my %info = (
-  17 => 'SQLite',       # SQL_DBMS_NAME
+  17 => 'SQLite', # SQL_DBMS_NAME
   18 => \&_get_version, # SQL_DBMS_VER
-  29 => '"',            # SQL_IDENTIFIER_QUOTE_CHAR
+  29 => '"', # SQL_IDENTIFIER_QUOTE_CHAR
 );
 
 sub get_info {
@@ -268,9 +268,9 @@ sub _attached_database_list {
   my $dbh = shift;
   my @attached;
 
-  my $sth_databases = $dbh->prepare( 'PRAGMA database_list' ) or return;
+  my $sth_databases = $dbh->prepare('PRAGMA database_list') or return;
   $sth_databases->execute or return;
-  while ( my $db_info = $sth_databases->fetchrow_hashref ) {
+  while (my $db_info = $sth_databases->fetchrow_hashref) {
     push @attached, $db_info->{name} if $db_info->{seq} >= 2;
   }
   return @attached;
@@ -284,7 +284,7 @@ sub table_info {
 
   my @where = ();
   my $sql;
-  if (  defined($cat_val) && $cat_val eq '%'
+  if (defined($cat_val) && $cat_val eq '%'
     && defined($sch_val) && $sch_val eq ''
     && defined($tbl_val) && $tbl_val eq '')  { # Rule 19a
       $sql = <<'END_SQL';
@@ -294,7 +294,7 @@ SELECT NULL TABLE_CAT
    , NULL TABLE_TYPE
    , NULL REMARKS
 END_SQL
-  } elsif (  defined($cat_val) && $cat_val eq ''
+  } elsif ( defined($cat_val) && $cat_val eq ''
     && defined($sch_val) && $sch_val eq '%'
     && defined($tbl_val) && $tbl_val eq '') { # Rule 19b
     $sql = <<'END_SQL';
@@ -311,7 +311,7 @@ END_SQL
         $sql .= " UNION SELECT '$db_name' tn\n";
     }
     $sql .= ") t\n";
-  } elsif (  defined($cat_val) && $cat_val eq ''
+  } elsif (defined($cat_val) && $cat_val eq ''
     && defined($sch_val) && $sch_val eq ''
     && defined($tbl_val) && $tbl_val eq ''
     && defined($typ_val) && $typ_val eq '%') { # Rule 19c
@@ -423,7 +423,7 @@ sub primary_key_info {
       $t_sth->execute or return;
       my @pk;
       while(my $col = $t_sth->fetchrow_hashref) {
-          push @pk, $col->{name} if $col->{pk};
+        push @pk, $col->{name} if $col->{pk};
       }
 
       # If there're multiple primary key columns, we need to
@@ -458,11 +458,11 @@ sub primary_key_info {
           (?:\s*,\s*|$)
             /sixg) {
           my($col, $quote, $brack) = ($1, $2, $3);
-          if ( defined $quote ) {
+          if (defined $quote) {
             # Dequote "'`
             $col = substr $col, 1, -1;
             $col =~ s/$quote$quote/$quote/g;
-          } elsif ( defined $brack ) {
+          } elsif (defined $brack) {
             # Dequote []
             $col = $brack;
           }
@@ -784,10 +784,10 @@ UNION ALL
 END_SQL
 
   my @where;
-  if ( defined $sch_val ) {
+  if (defined $sch_val) {
     push @where, "TABLE_SCHEM LIKE '$sch_val'";
   }
-  if ( defined $tbl_val ) {
+  if (defined $tbl_val) {
     push @where, "TABLE_NAME LIKE '$tbl_val'";
   }
   $sql .= ' WHERE ' . join("\n   AND ", @where ) . "\n" if @where;
@@ -797,12 +797,12 @@ END_SQL
 
   # Taken from Fey::Loader::SQLite
   my @cols;
-  while ( my ($schema, $table) = $sth_tables->fetchrow_array ) {
+  while (my($schema, $table) = $sth_tables->fetchrow_array) {
     my $sth_columns = $dbh->prepare(qq{PRAGMA "$schema".table_info("$table")}) or return;
     $sth_columns->execute or return;
 
-    for ( my $position = 1; my $col_info = $sth_columns->fetchrow_hashref; $position++ ) {
-      if ( defined $col_val ) {
+    for (my $position = 1; my $col_info = $sth_columns->fetchrow_hashref; $position++) {
+      if (defined $col_val) {
         # This must do a LIKE comparison
         my $sth = $dbh->prepare("SELECT '$col_info->{name}' LIKE '$col_val'") or return undef;
         $sth->execute or return undef;
@@ -818,8 +818,8 @@ END_SQL
       );
 
       my $type = $col_info->{type};
-      if ( $type =~ s/(\w+)\s*\(\s*(\d+)(?:\s*,\s*(\d+))?\s*\)/$1/ ) {
-        $col{COLUMN_SIZE}    = $2;
+      if ($type =~ s/(\w+)\s*\(\s*(\d+)(?:\s*,\s*(\d+))?\s*\)/$1/) {
+        $col{COLUMN_SIZE} = $2;
         $col{DECIMAL_DIGITS} = $3;
       }
 
@@ -921,6 +921,8 @@ Version 0.24.0 of sqleet is based on SQLite v3.24.0
 
 =head1 DIFFERENCES FROM DBD::SQLite
 
+=over 2
+
 =item URI filename syntax
 
 DBD::SQLeet may not open successfully a database using the following code:
@@ -936,6 +938,8 @@ You can use:
 
 DBD::SQLeet has no classes similar to
 DBD::SQLite::VirtualTable::FileContent and DBD::SQLite::VirtualTable::PerlData.
+
+=back
 
 =head1 AUTHORS
 
